@@ -22,8 +22,8 @@
 1. **Клонируйте этот репозиторий** или скачайте исходный код:
 
     ```bash
-    git clone https://github.com/your-username/google-sheet-notifier.git
-    cd google-sheet-notifier
+    git clone https://github.com/mvasilyev/zamenabot.git
+    cd zamenabot
     ```
 
 2. **Установите зависимости**:
