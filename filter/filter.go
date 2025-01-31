@@ -10,7 +10,7 @@ type Filter struct {
 	ClassID string
 }
 
-func (filter Filter) FilterSchedule(data [][]string) [][]string {
+func (filter *Filter) FilterSchedule(data [][]string) [][]string {
 	return filterFutureRowsForOurClass(data, filter.ClassID)
 }
 

@@ -42,7 +42,7 @@ type Sender interface{
 	SendMessage([]ScheduleItem)
 }
 
-func (scheduler Scheduler) Run () {
+func (scheduler *Scheduler) Run () {
 	for {
 		if (scheduler.Checker.ShouldCheck()) {
 			schedule, err := scheduler.Fetcher.FetchSchedule()

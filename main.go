@@ -9,6 +9,7 @@ import (
 	"mvasilyev/zamenabot/scheduler"
 	"mvasilyev/zamenabot/sender"
 	"mvasilyev/zamenabot/timeChecker"
+	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -50,6 +51,7 @@ func main() {
 
 	fetcher := fetcher.Fetcher{
 		SheetID: sheetID,
+		HTTPClient: &http.Client{},
 	}
 
 	filter := filter.Filter{
@@ -72,11 +74,11 @@ func main() {
 			ClassID:    classID,
 			CheckTimes: checkTimes,
 		},
-		Checker:   checker,
-		Fetcher:   fetcher,
-		Filter:    filter,
-		Converter: converter,
-		Sender:    sender,
+		Checker:   &checker,
+		Fetcher:   &fetcher,
+		Filter:    &filter,
+		Converter: &converter,
+		Sender:    &sender,
 	}
 
 	scheduler.Run()

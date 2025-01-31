@@ -11,7 +11,7 @@ type Deduplicator struct {
 
 }
 
-func (d Deduplicator) ShouldSend(message string) bool {
+func (d *Deduplicator) ShouldSend(message string) bool {
 	messageHash := hashMessage(message)
 	if _, exists := sentHashes[messageHash]; exists {
 		fmt.Println("Duplicate message detected, not sending.")

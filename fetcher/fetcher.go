@@ -6,14 +6,19 @@ import (
 	"net/http"
 )
 
-type Fetcher struct {
-	SheetID string
+type HTTPClient interface {
+	Get(url string) (*http.Response, error)
 }
 
-func (fetcher Fetcher) FetchSchedule() ([][]string, error) {
+type Fetcher struct {
+	SheetID    string
+	HTTPClient HTTPClient
+}
+
+func (fetcher *Fetcher) FetchSchedule() ([][]string, error) {
 	url := fmt.Sprintf("https://docs.google.com/spreadsheets/d/%s/gviz/tq?tqx=out:csv", fetcher.SheetID)
 
-	resp, err := http.Get(url)
+	resp, err := fetcher.HTTPClient.Get(url)
 	if err != nil {
 		return nil, err
 	}

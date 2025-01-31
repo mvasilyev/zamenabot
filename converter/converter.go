@@ -17,7 +17,7 @@ type ScheduleItem struct {
 	LessonNumber int
 }
 
-func (converter Converter) Convert(data [][]string) []scheduler.ScheduleItem {
+func (converter *Converter) Convert(data [][]string) []scheduler.ScheduleItem {
 	items := []scheduler.ScheduleItem{}
 	for _, row := range data {
 		if len(row) > 6 && row[6] == "отмена" {
@@ -33,7 +33,7 @@ func (converter Converter) Convert(data [][]string) []scheduler.ScheduleItem {
 }
 
 func composeCancelationItem(row []string) scheduler.ScheduleItem {
-	return items.Cancelation{
+	return &items.Cancelation{
 		ScheduleItem: items.ScheduleItem{
 			Date: row[0],
 			LessonNumber: func() int {
@@ -46,7 +46,7 @@ func composeCancelationItem(row []string) scheduler.ScheduleItem {
 }
 
 func composeSubstituteMessage(row []string) scheduler.ScheduleItem {
-	return items.Substitution{
+	return &items.Substitution{
 		ScheduleItem: items.ScheduleItem{
 			Date: row[0],
 			LessonNumber: func() int {
