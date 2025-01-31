@@ -8,7 +8,7 @@ import (
 	"mvasilyev/zamenabot/filter"
 	"mvasilyev/zamenabot/scheduler"
 	"mvasilyev/zamenabot/sender"
-	"mvasilyev/zamenabot/timeChecker"
+	"mvasilyev/zamenabot/timechecker"
 	"net/http"
 	"os"
 
@@ -78,7 +78,7 @@ func main() {
 		Fetcher:   &fetcher,
 		Filter:    &filter,
 		Converter: &converter,
-		Sender:    &sender,
+		Sender:    sender,
 	}
 
 	scheduler.Run()
