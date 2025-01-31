@@ -31,7 +31,7 @@ func (sender Sender) SendMessage(items []scheduler.ScheduleItem) {
 
 }
 
-func (sender Sender) sendTelegramMessage(text string) error {
+func (sender *Sender) sendTelegramMessage(text string) error {
 	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/sendMessage", sender.BotToken)
 
 	data := url.Values{}
