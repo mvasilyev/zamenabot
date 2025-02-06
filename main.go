@@ -13,16 +13,16 @@ import (
 )
 
 var (
-	botToken   = getEnv("BOT_TOKEN", "")                    // Get Bot Token from environment or fallback
-	chatID     = getEnv("CHAT_ID", "")                      // Get Chat ID from environment or fallback
-	sheetID    = getEnv("SHEET_ID", "")                     // Get Google Sheet ID from environment or fallback
-	classID    = getEnv("CLASS_ID", "")                     // Default class ID "7Ю", can be overridden
-	checkTimes = getEnv("CHECK_TIMES", "06:00,12:00,18:00") // Default check times
+	botToken   = getEnv("BOT_TOKEN", "")
+	chatID     = getEnv("CHAT_ID", "")
+	topicID    = getEnv("TOPIC_ID", "")
+	sheetID    = getEnv("SHEET_ID", "")
+	classID    = getEnv("CLASS_ID", "")
+	checkTimes = getEnv("CHECK_TIMES", "06:00,12:00,18:00")
 	sentHashes = make(map[string]bool)
 )
 
 func main() {
-	// Check if command-line arguments override environment variables
 	overrideFromArgs()
 
 	// Use environment variables or fallback to default values
@@ -55,9 +55,9 @@ func main() {
 				continue
 			}
 
-			if now.Hour() == checkTime.Hour() && now.Minute() == checkTime.Minute() {
+			if now.Hour() == checkTime.Hour() && now.Minute() == checkTime.Minute(){
 				checkForUpdates()
-				time.Sleep(60 * time.Second) // Wait a minute to avoid checking every second
+				time.Sleep(60 * time.Second)
 			}
 		}
 	}
@@ -129,7 +129,7 @@ func parseDate(dateStr string) (time.Time, error) {
 func filterFutureRowsForOurClass(data [][]string, classID string) [][]string {
 	var futureRows [][]string
 	var lastDate time.Time
-	today := time.Now().Truncate(24 * time.Hour) // Get today's date without time
+	yesterday := time.Now().Truncate(24 * time.Hour).Add(-24 * time.Hour)
 
 	for _, row := range data {
 		if len(row) == 0 { // Skip empty rows
@@ -155,7 +155,7 @@ func filterFutureRowsForOurClass(data [][]string, classID string) [][]string {
 		}
 
 		// If we have a valid lastDate, check if it's in the future
-		if !lastDate.IsZero() && lastDate.After(today) {
+		if !lastDate.IsZero() && lastDate.After(yesterday) {
 			if row[0] == "" {
 				row[0] = lastDate.Format("02.01.2006")
 			}
@@ -173,6 +173,9 @@ func sendTelegramMessage(text string) error {
 	data := url.Values{}
 	data.Set("chat_id", chatID)
 	data.Set("text", text)
+	if topicID != "" {
+		data.Set("message_thread_id", topicID)
+	}
 	data.Set("parse_mode", "Markdown") // Optional: Enables basic formatting
 
 	_, err := http.PostForm(apiURL, data)
@@ -188,11 +191,11 @@ func composeMessage(row []string) string {
 }
 
 func composeSubstituteMessage(row []string) string {
-	return fmt.Sprintf("🔄 Замена %s: %s\n%s(%s урок), заменяет %s в каб. %s", row[0], row[2], row[3], row[1], row[6], row[7])
+	return fmt.Sprintf("🔄 Замена %s: %s\n%s (%s урок), заменяет %s в каб. %s", row[0], row[2], row[3], row[1], row[6], row[7])
 }
 
 func composeCancelMessage(row []string) string {
-	return fmt.Sprintf("🚫 Отмена %s: %s\n%s(%s урок)", row[0], row[2], row[3], row[1])
+	return fmt.Sprintf("🚫 Отмена %s: %s\n%s (%s урок)", row[0], row[2], row[3], row[1])
 }
 
 // hashMessage generates a SHA256 hash for the message text.
