@@ -148,8 +148,6 @@ func filterFutureRowsForOurClass(data [][]string, classID string, morningCutoff 
 	now := time.Now()
 	isMorning := isMorningUpdate(morningCutoff)
 
-	data = append(data, []string{"26.02.2025", "1", "Сымова Юлия Александровна", "АНГЛ.ЯЗ ", "5В", "б/л", "отмена", "", "", ""})
-
 	for _, row := range data {
 		if len(row) == 0 {
 			continue
