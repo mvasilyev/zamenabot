@@ -22,6 +22,7 @@ type Config struct {
 	SheetID    string
 	ClassID    string
 	CheckTimes []string
+	MorningCutoff string
 }
 
 // Global cache to prevent duplicate messages
@@ -50,6 +51,7 @@ func loadConfig() *Config {
 		TopicID:    getEnvOrArg("TOPIC_ID", "--topic-id"),
 		SheetID:    getEnvOrArg("SHEET_ID", "--sheet-id"),
 		ClassID:    getEnvOrArg("CLASS_ID", "--class-id"),
+		MorningCutoff: getEnvOrArg("MORNING_CUTOFF", "--morning-cutoff", "12:00"),
 		CheckTimes: strings.Split(getEnvOrArg("CHECK_TIMES", "--check-times", "06:00,12:00,18:00"), ","),
 	}
 }
@@ -86,7 +88,7 @@ func checkForUpdates(cfg *Config) {
 		return
 	}
 
-	filteredData := filterFutureRowsForOurClass(data, cfg.ClassID)
+	filteredData := filterFutureRowsForOurClass(data, cfg.ClassID, cfg.MorningCutoff)
 	if len(filteredData) == 0 {
 		return
 	}
@@ -124,11 +126,29 @@ func fetchSheetData(sheetID string) ([][]string, error) {
 	return csv.NewReader(resp.Body).ReadAll()
 }
 
+func isMorningUpdate(morningCutoff string) bool {
+	now := time.Now()
+
+	cutoffTime, err := time.Parse("15:04", morningCutoff)
+	if err != nil {
+		log.Printf("Invalid MORNING_CUTOFF format: %s\n", morningCutoff)
+		return false
+	}
+
+	morningDeadline := time.Date(now.Year(), now.Month(), now.Day(), cutoffTime.Hour(), cutoffTime.Minute(), 0, 0, now.Location())
+
+	return now.Before(morningDeadline)
+}
+
 // filterFutureRowsForOurClass filters future rows for a given class
-func filterFutureRowsForOurClass(data [][]string, classID string) [][]string {
+func filterFutureRowsForOurClass(data [][]string, classID string, morningCutoff string) [][]string {
 	var result [][]string
 	var lastDate time.Time
-	yesterday := time.Now().Add(-24 * time.Hour).Truncate(24 * time.Hour)
+
+	now := time.Now()
+	isMorning := isMorningUpdate(morningCutoff)
+
+	data = append(data, []string{"26.02.2025","1","Сымова Юлия Александровна","АНГЛ.ЯЗ ","5В","б/л","отмена","","",""})
 
 	for _, row := range data {
 		if len(row) == 0 {
@@ -149,10 +169,16 @@ func filterFutureRowsForOurClass(data [][]string, classID string) [][]string {
 			continue
 		}
 
-		if !lastDate.IsZero() && lastDate.After(yesterday) {
-			row[0] = lastDate.Format("02.01.2006")
-			
-			result = append(result, row)
+		if !lastDate.IsZero() {
+			if isMorning && !lastDate.Before(now.Truncate(24*time.Hour)) {
+				row[0] = lastDate.Format("02.01.2006")
+				result = append(result, row)
+			}
+
+			if !isMorning && !lastDate.Before(now.Add(24*time.Hour).Truncate(24*time.Hour)) {
+				row[0] = lastDate.Format("02.01.2006")
+				result = append(result, row)
+			}
 		}
 	}
 
