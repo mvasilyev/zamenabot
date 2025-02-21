@@ -34,6 +34,8 @@ func main() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
+	checkForUpdates(cfg)
+
 	for range ticker.C {
 		now := time.Now()
 		checkForUpdatesAt(cfg, now)
@@ -150,9 +152,8 @@ func filterFutureRowsForOurClass(data [][]string, classID string) [][]string {
 		}
 
 		if !lastDate.IsZero() && lastDate.After(yesterday) {
-			if row[0] == "" {
-				row[0] = lastDate.Format("02.01.2006")
-			}
+			row[0] = lastDate.Format("02.01.2006")
+			
 			result = append(result, row)
 		}
 	}
@@ -161,8 +162,10 @@ func filterFutureRowsForOurClass(data [][]string, classID string) [][]string {
 }
 
 // parseDate converts "DD.MM.YYYY" to time.Time
-func parseDate(dateStr string) (time.Time, error) {
-	return time.Parse("02.01.2006", dateStr)
+func parseDate(rawDate string) (time.Time, error) {
+	datePart := strings.Split(rawDate, " ")[0]
+
+	return time.Parse("02.01.2006", datePart)
 }
 
 // sendTelegramMessage sends a message via Telegram bot
