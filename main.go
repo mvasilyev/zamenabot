@@ -34,8 +34,6 @@ func main() {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
-	checkForUpdates(cfg)
-
 	for range ticker.C {
 		now := time.Now()
 		checkForUpdatesAt(cfg, now)
