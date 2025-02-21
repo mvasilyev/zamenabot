@@ -16,12 +16,12 @@ import (
 
 // Config holds the environment variables
 type Config struct {
-	BotToken   string
-	ChatID     string
-	TopicID    string
-	SheetID    string
-	ClassID    string
-	CheckTimes []string
+	BotToken      string
+	ChatID        string
+	TopicID       string
+	SheetID       string
+	ClassID       string
+	CheckTimes    []string
 	MorningCutoff string
 }
 
@@ -46,19 +46,19 @@ func loadConfig() *Config {
 	_ = godotenv.Load(".env") // Load .env file if available
 
 	return &Config{
-		BotToken:   getEnvOrArg("BOT_TOKEN", "--bot-token"),
-		ChatID:     getEnvOrArg("CHAT_ID", "--chat-id"),
-		TopicID:    getEnvOrArg("TOPIC_ID", "--topic-id"),
-		SheetID:    getEnvOrArg("SHEET_ID", "--sheet-id"),
-		ClassID:    getEnvOrArg("CLASS_ID", "--class-id"),
+		BotToken:      getEnvOrArg("BOT_TOKEN", "--bot-token"),
+		ChatID:        getEnvOrArg("CHAT_ID", "--chat-id"),
+		TopicID:       getEnvOrArg("TOPIC_ID", "--topic-id"),
+		SheetID:       getEnvOrArg("SHEET_ID", "--sheet-id"),
+		ClassID:       getEnvOrArg("CLASS_ID", "--class-id"),
 		MorningCutoff: getEnvOrArg("MORNING_CUTOFF", "--morning-cutoff", "12:00"),
-		CheckTimes: strings.Split(getEnvOrArg("CHECK_TIMES", "--check-times", "06:00,12:00,18:00"), ","),
+		CheckTimes:    strings.Split(getEnvOrArg("CHECK_TIMES", "--check-times", "06:00,12:00,18:00"), ","),
 	}
 }
 
 // validateConfig ensures all required settings are present
 func validateConfig(cfg *Config) {
-	if cfg.SheetID == "" || cfg.BotToken == "" || cfg.ChatID == "" || cfg.ClassID == ""{
+	if cfg.SheetID == "" || cfg.BotToken == "" || cfg.ChatID == "" || cfg.ClassID == "" {
 		log.Fatal("Missing required configuration (SHEET_ID, BOT_TOKEN, CHAT_ID, CLASS_ID)")
 	}
 }
@@ -148,7 +148,7 @@ func filterFutureRowsForOurClass(data [][]string, classID string, morningCutoff 
 	now := time.Now()
 	isMorning := isMorningUpdate(morningCutoff)
 
-	data = append(data, []string{"26.02.2025","1","Сымова Юлия Александровна","АНГЛ.ЯЗ ","5В","б/л","отмена","","",""})
+	data = append(data, []string{"26.02.2025", "1", "Сымова Юлия Александровна", "АНГЛ.ЯЗ ", "5В", "б/л", "отмена", "", "", ""})
 
 	for _, row := range data {
 		if len(row) == 0 {
